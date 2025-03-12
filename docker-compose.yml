@@ -1,18 +1,18 @@
-version: '3.8'
-
 services:
   mysql:
-    image: mysql:8.0
+    image: mysql:8
     container_name: mysql
     restart: always
-    env_file:
-      - .env
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: my_database
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
     ports:
       - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql  # Volumen persistente para los datos de MySQL
+
 
   backend:
     build:

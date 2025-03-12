@@ -14,3 +14,7 @@ Un cop comenceu heu de canviar aquesta explicació amb la corresponent al vostre
  * Adreça del prototip gràfic del projecte (Penpot, figma, moqups...)
  * URL de producció (quan la tingueu)
  * Estat: (explicació d'en quin punt està)
+
+
+#comando para guardar datos;
+    *docker exec -it mysql mysqldump -u root -p --databases my_database > db/datos/datos.sql
