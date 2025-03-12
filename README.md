@@ -16,5 +16,6 @@ Un cop comenceu heu de canviar aquesta explicació amb la corresponent al vostre
  * Estat: (explicació d'en quin punt està)
 
 
-#comando para guardar datos;
-    *docker exec -it mysql mysqldump -u root -p --databases my_database > db/datos/datos.sql
+# Matar la adminer local
+ * netstat -ano | findstr :8080
+ * taskkill /PID <PID> /F
