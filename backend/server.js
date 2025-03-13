@@ -8,6 +8,7 @@ import collectibleModel from './models/collectible.js'; // Modelo de objetos rec
 import skinModel from './models/Skin.js'; // Modelo de skins
 import levelConfigModel from './models/levelConfig.js'; // Modelo de configuración de niveles
 import musicSettingModel from './models/MusicSetting.js'; // Modelo de configuración de música
+import authRoutes from './routes/auth.js'; // Rutas de autenticación
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,6 +23,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Usamos las rutas de autenticación
+app.use('/auth', authRoutes);
+
 // Definimos los modelos con Sequelize
 const User = userModel(sequelize);
 const Monster = monsterModel(sequelize);
@@ -30,7 +34,7 @@ const Skin = skinModel(sequelize);
 const LevelConfig = levelConfigModel(sequelize);
 const MusicSetting = musicSettingModel(sequelize);
 
-// Rutas (aunque no las uses, estas rutas se refieren a los modelos)
+// Rutas de modelos (aunque no las uses, estas rutas se refieren a los modelos)
 app.use('/user', (req, res) => {
   res.json({ message: 'User model is working' });
 });
