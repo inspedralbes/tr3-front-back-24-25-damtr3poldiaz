@@ -43,7 +43,7 @@ CREATE TABLE level_config (
     wave INT NOT NULL,
     enemy_type INT,
     enemy_count INT NOT NULL,
-    FOREIGN KEY (enemy_type) REFERENCES enemies(id) ON DELETE SET NULL
+    FOREIGN KEY (enemy_type) REFERENCES monstruos(id) ON DELETE SET NULL
 );
 
 -- Tabla de configuración de música

@@ -8,7 +8,6 @@ import collectibleModel from './models/collectible.js'; // Modelo de objetos rec
 import skinModel from './models/Skin.js'; // Modelo de skins
 import levelConfigModel from './models/levelConfig.js'; // Modelo de configuración de niveles
 import musicSettingModel from './models/MusicSetting.js'; // Modelo de configuración de música
-import microserviceModel from './models/Microservice.js'; // Modelo de microservicios
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -30,7 +29,6 @@ const Collectible = collectibleModel(sequelize);
 const Skin = skinModel(sequelize);
 const LevelConfig = levelConfigModel(sequelize);
 const MusicSetting = musicSettingModel(sequelize);
-const Microservice = microserviceModel(sequelize);
 
 // Rutas (aunque no las uses, estas rutas se refieren a los modelos)
 app.use('/user', (req, res) => {
@@ -50,9 +48,6 @@ app.use('/level-config', (req, res) => {
 });
 app.use('/music-settings', (req, res) => {
   res.json({ message: 'MusicSetting model is working' });
-});
-app.use('/Microservice', (req, res) => {
-  res.json({ message: 'Microservice model is working' });
 });
 
 // Página de bienvenida

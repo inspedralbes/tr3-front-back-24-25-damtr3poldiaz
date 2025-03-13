@@ -19,7 +19,7 @@ export default (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: 'monstruos', // Nombre de la tabla referenciada
+        model: 'monstruos',
         key: 'id',
       },
       onDelete: 'SET NULL',
