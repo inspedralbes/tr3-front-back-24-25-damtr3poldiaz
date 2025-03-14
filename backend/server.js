@@ -9,6 +9,7 @@ import skinModel from './models/Skin.js'; // Modelo de skins
 import levelConfigModel from './models/levelConfig.js'; // Modelo de configuración de niveles
 import musicSettingModel from './models/MusicSetting.js'; // Modelo de configuración de música
 import authRoutes from './routes/auth.js'; // Rutas de autenticación
+import cors from 'cors';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,8 +24,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(cors({
+  origin: 'http://localhost:5000', // Permitir solicitudes solo desde el frontend
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
+  allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
+  credentials: true // Permite el envío de cookies si usas sesiones
+}));
+
 // Usamos las rutas de autenticación
 app.use('/auth', authRoutes);
+
 
 // Definimos los modelos con Sequelize
 const User = userModel(sequelize);
@@ -56,11 +65,12 @@ app.use('/music-settings', (req, res) => {
 
 // Página de bienvenida
 app.get('/', (req, res) => {
-  res.render('portada');
+  res.json({ message: 'Bienvenido al backend' });
 });
 
+
 // Sincronización de la base de datos
-sequelize.sync({ force: true })  // Se usa 'force: true' para eliminar y recrear las tablas
+sequelize.sync({ alter: true })  // Se usa 'force: true' para eliminar y recrear las tablas
   .then(() => {
     console.log('Base de datos sincronizada.');
     app.listen(PORT, () => {

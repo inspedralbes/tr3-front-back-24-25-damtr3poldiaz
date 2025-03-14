@@ -3,19 +3,29 @@ import bcrypt from 'bcryptjs';
 import session from 'express-session';
 import { sequelize } from '../database.js'; // Importa la conexión a la base de datos
 import UserModel from '../models/user.js'; // Asegúrate de tener la ruta correcta al modelo
+import SequelizeStorePkg from 'connect-session-sequelize';
+
+const SequelizeStore = SequelizeStorePkg(session.Store);
 
 const router = express.Router();
 
 // Define el modelo de usuario usando Sequelize
 const User = UserModel(sequelize);
 
-// Middleware de sesión
-router.use(session({
+const sessionStore = new SequelizeStore({
+    db: sequelize, // Asegúrate de que 'sequelize' está importado correctamente
+  });
+  
+  router.use(session({
     secret: process.env.SESSION_SECRET || 'secreto_seguro',
+    store: sessionStore,
     resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false } // Cambiar a true si se usa HTTPS
-}));
+    saveUninitialized: false,
+    cookie: { secure: false }
+  }));
+  
+  sessionStore.sync(); // Sincroniza el almacenamiento de sesiones
+  
 
 // Registro de usuario
 router.post('/register', async (req, res) => {
@@ -89,4 +99,5 @@ router.get('/session', (req, res) => {
     }
 });
 
+sessionStore.sync();
 export default router;
