@@ -22,7 +22,7 @@
     methods: {
       async register() {
         try {
-          await axios.post('http://192.168.16.43:3000/auth/register', { 
+          await axios.post('http://192.168.17.1:3000/auth/register', { 
             username: this.username, 
             email: this.email, 
             password: this.password 

@@ -20,7 +20,7 @@ export default {
   methods: {
     async login() {
       try {
-        const res = await axios.post('http://192.168.16.43:3000/auth/login', { 
+        const res = await axios.post('http://192.168.17.1:3000/auth/login', { 
           email: this.email, 
           password: this.password 
         });
