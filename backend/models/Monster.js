@@ -14,14 +14,26 @@ export default (sequelize) => {
     strength: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      defaultValue: 0,
+      validate: {
+        min: 0
+      }
     },
     speed: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      defaultValue: 0,
+      validate: {
+        min: 0
+      }
     },
     health: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      defaultValue: 100,
+      validate: {
+        min: 0
+      }
     },
     sprite: {
       type: DataTypes.STRING(255),
@@ -33,7 +45,9 @@ export default (sequelize) => {
       allowNull: false,
     }
   }, {
-    tableName: 'monstruos',
-    timestamps: false,
+    tableName: 'monsters',
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: false
   });
 };

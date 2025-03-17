@@ -4,5 +4,15 @@ import { Sequelize } from 'sequelize';
 export const sequelize = new Sequelize('my_database', 'user', 'password', {
     host: '192.168.17.1',
     dialect: 'mysql',
-    logging: false, // Opcional: Puedes desactivar el logging para no ver las consultas SQL en consola
+    logging: false,
+    pool: {
+        max: 5,
+        min: 0,
+        acquire: 30000,
+        idle: 10000
+    },
+    define: {
+        charset: 'utf8mb4',
+        collate: 'utf8mb4_unicode_ci'
+    }
 });

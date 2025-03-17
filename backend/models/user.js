@@ -9,13 +9,13 @@ export default (sequelize) => {
     },
     username: {
       type: DataTypes.STRING(50),
-      unique: true,
       allowNull: false,
+      unique: 'username_unique'
     },
     email: {
       type: DataTypes.STRING(100),
-      unique: true,
       allowNull: false,
+      unique: 'email_unique'
     },
     password_hash: {
       type: DataTypes.STRING(255),
@@ -28,6 +28,6 @@ export default (sequelize) => {
     }
   }, {
     tableName: 'users',
-    timestamps: false,
+    timestamps: false
   });
 };

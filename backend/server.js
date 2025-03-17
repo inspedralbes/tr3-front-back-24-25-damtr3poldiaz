@@ -9,6 +9,7 @@ import skinModel from './models/Skin.js'; // Modelo de skins
 import levelConfigModel from './models/levelConfig.js'; // Modelo de configuración de niveles
 import musicSettingModel from './models/MusicSetting.js'; // Modelo de configuración de música
 import authRoutes from './routes/auth.js'; // Rutas de autenticación
+import monsterRoutes from './routes/monsters.js'; // Rutas de monstruos
 import cors from 'cors';
 
 const app = express();
@@ -34,6 +35,8 @@ app.use(cors({
 // Usamos las rutas de autenticación
 app.use('/auth', authRoutes);
 
+// Usamos las rutas de monstruos
+app.use('/monsters', monsterRoutes);
 
 // Definimos los modelos con Sequelize
 const User = userModel(sequelize);
@@ -68,13 +71,28 @@ app.get('/', (req, res) => {
   res.json({ message: 'Bienvenido al backend' });
 });
 
+// Inicialización del servidor y base de datos
+const initializeServer = async () => {
+  try {
+    // Primero, autenticamos la conexión
+    await sequelize.authenticate();
+    console.log('Conexión a la base de datos establecida correctamente.');
 
-// Sincronización de la base de datos
-sequelize.sync({ alter: true })  // Se usa 'force: true' para eliminar y recrear las tablas
-  .then(() => {
-    console.log('Base de datos sincronizada.');
+    // Forzamos la recreación de todas las tablas
+    await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
+    await sequelize.sync({ force: true });
+    await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
+    
+    console.log('Base de datos reinicializada correctamente.');
+
+    // Iniciamos el servidor
     app.listen(PORT, () => {
       console.log(`Servidor funcionando en http://localhost:${PORT}`);
     });
-  })
-  .catch(err => console.error('Error sincronizando la base de datos:', err));
+  } catch (error) {
+    console.error('Error durante la inicialización:', error);
+    process.exit(1);
+  }
+};
+
+initializeServer();
