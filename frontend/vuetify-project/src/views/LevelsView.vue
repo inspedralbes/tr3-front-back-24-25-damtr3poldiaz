@@ -4,16 +4,6 @@
       <v-col cols="auto">
         <h1 class="text-h4">Gestión de Niveles</h1>
       </v-col>
-      <v-col cols="auto">
-        <v-btn
-          color="error"
-          variant="outlined"
-          prepend-icon="mdi-logout"
-          @click="logout"
-        >
-          Cerrar sesión
-        </v-btn>
-      </v-col>
     </v-row>
 
     <!-- Formulario para añadir/editar nivel -->
@@ -258,8 +248,10 @@ export default {
       }
     },
 
-    logout() {
-      this.$router.push('/login');
+    async logout() {
+      await api.post("/auth/logout");
+      localStorage.removeItem("user");
+      this.$router.push("/");
     }
   }
 };
