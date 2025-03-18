@@ -92,7 +92,7 @@ export default {
       this.loading = true;
       this.error = '';
       try {
-        await axios.post('http://192.168.17.1:3000/auth/register', {
+        await axios.post('http://localhost:3000/auth/register', {
           username: this.username,
           email: this.email,
           password: this.password

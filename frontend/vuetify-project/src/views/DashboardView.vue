@@ -1,38 +1,93 @@
 <template>
-  <div class="container">
-    <h1>Dashboard</h1>
-    <p v-if="user">Bienvenido, {{ user.username }}</p>
+  <v-container>
+    <v-row>
+      <v-col cols="12" class="text-center">
+        <h1 class="text-h3 mb-4">Panel de Control</h1>
+        <p v-if="user" class="text-h5 mb-6">Bienvenido, {{ user.username }}</p>
+      </v-col>
+    </v-row>
 
-    <div class="menu">
-      <router-link to="/monsters" class="btn btn-primary">Gestión de Monstruos</router-link>
-      <router-link to="/items" class="btn btn-secondary">Gestión de Ítems</router-link>
-      <router-link to="/levels" class="btn btn-success">Gestión de Niveles</router-link>
-      <router-link to="/skins" class="btn btn-warning">Gestión de Skins</router-link>
-      <router-link to="/settings" class="btn btn-info">Configuración</router-link>
-    </div>
+    <v-row>
+      <v-col cols="12" sm="6" md="4">
+        <v-card to="/monsters" class="mb-4" elevation="2" hover>
+          <v-card-title class="text-center pa-4">
+            <v-icon size="48" color="primary" class="mb-2">mdi-ghost</v-icon>
+            <div>Monstruos</div>
+          </v-card-title>
+          <v-card-text class="text-center">
+            Gestiona los monstruos del juego
+          </v-card-text>
+        </v-card>
+      </v-col>
 
-    <button @click="logout" class="btn btn-danger">Cerrar sesión</button>
-  </div>
+      <v-col cols="12" sm="6" md="4">
+        <v-card to="/collectibles" class="mb-4" elevation="2" hover>
+          <v-card-title class="text-center pa-4">
+            <v-icon size="48" color="primary" class="mb-2">mdi-sword</v-icon>
+            <div>Coleccionables</div>
+          </v-card-title>
+          <v-card-text class="text-center">
+            Administra armas y power-ups
+          </v-card-text>
+        </v-card>
+      </v-col>
+
+      <v-col cols="12" sm="6" md="4">
+        <v-card to="/skins" class="mb-4" elevation="2" hover>
+          <v-card-title class="text-center pa-4">
+            <v-icon size="48" color="primary" class="mb-2">mdi-tshirt-crew</v-icon>
+            <div>Skins</div>
+          </v-card-title>
+          <v-card-text class="text-center">
+            Gestiona las skins de personajes
+          </v-card-text>
+        </v-card>
+      </v-col>
+
+      <v-col cols="12" sm="6" md="4">
+        <v-card to="/levels" class="mb-4" elevation="2" hover>
+          <v-card-title class="text-center pa-4">
+            <v-icon size="48" color="primary" class="mb-2">mdi-map</v-icon>
+            <div>Niveles</div>
+          </v-card-title>
+          <v-card-text class="text-center">
+            Configura los niveles y oleadas
+          </v-card-text>
+        </v-card>
+      </v-col>
+
+      <v-col cols="12" sm="6" md="4">
+        <v-card to="/music" class="mb-4" elevation="2" hover>
+          <v-card-title class="text-center pa-4">
+            <v-icon size="48" color="primary" class="mb-2">mdi-music</v-icon>
+            <div>Música</div>
+          </v-card-title>
+          <v-card-text class="text-center">
+            Gestiona la música del juego
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
-import api from '@/api.js';
-
 export default {
+  name: 'DashboardView',
   data() {
-    return { user: null };
+    return {
+      user: null
+    }
   },
   created() {
-    this.user = JSON.parse(localStorage.getItem('user'));
-  },
-  methods: {
-    async logout() {
-      await api.post('/auth/logout');
-      localStorage.removeItem('user');
-      this.$router.push('/');
-    },
-  },
-};
+    const userStr = localStorage.getItem('user')
+    if (userStr) {
+      this.user = JSON.parse(userStr)
+    } else {
+      this.$router.push('/login')
+    }
+  }
+}
 </script>
 
 <style scoped>

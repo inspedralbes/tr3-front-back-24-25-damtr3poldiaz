@@ -6,7 +6,7 @@
           <v-card-title class="text-h5 text-center mb-4">
             Iniciar Sesión
           </v-card-title>
-          <v-form @submit.prevent="login">
+          <v-form ref="form" @submit.prevent="login">
             <v-text-field
               v-model="email"
               label="Email"
@@ -14,10 +14,7 @@
               prepend-inner-icon="mdi-email"
               variant="outlined"
               required
-              :rules="[
-                v => !!v || 'Email es requerido',
-                v => /.+@.+\..+/.test(v) || 'Email debe ser válido'
-              ]"
+              :rules="[v => !!v || 'Email es requerido', v => /.+@.+\..+/.test(v) || 'Email debe ser válido']"
             ></v-text-field>
 
             <v-text-field
@@ -65,7 +62,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { authStore } from '../store/auth.js';
 
 export default {
   data() {
@@ -78,22 +75,41 @@ export default {
   },
   methods: {
     async login() {
-      this.loading = true;
-      this.error = '';
       try {
-        const res = await axios.post('http://192.168.17.1:3000/auth/login', {
-          email: this.email,
-          password: this.password
+        this.loading = true;
+        this.error = '';
+        
+        const response = await fetch('http://localhost:3000/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({
+            email: this.email,
+            password: this.password,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
         });
-        localStorage.setItem('user', JSON.stringify(res.data.user));
-        this.$router.push('/dashboard');
-      } catch (err) {
-        this.error = err.response?.data?.error || 'Error en el login';
+
+        if (!response.ok) {
+          throw new Error('Error en el login');
+        }
+
+        const data = await response.json();
+        
+        // Usar el store para establecer el usuario
+        authStore.setUser(data.user);
+        
+        // Navegar a la vista de monstruos
+        this.$router.push('/monsters');
+      } catch (error) {
+        console.error('Error al iniciar sesión:', error);
+        this.error = 'Error al iniciar sesión. Por favor, verifica tus credenciales.';
       } finally {
         this.loading = false;
       }
-    },
-  },
+    }
+  }
 };
 </script>
 

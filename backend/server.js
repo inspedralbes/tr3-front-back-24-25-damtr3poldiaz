@@ -10,6 +10,10 @@ import levelConfigModel from './models/levelConfig.js'; // Modelo de configuraci
 import musicSettingModel from './models/MusicSetting.js'; // Modelo de configuración de música
 import authRoutes from './routes/auth.js'; // Rutas de autenticación
 import monsterRoutes from './routes/monsters.js'; // Rutas de monstruos
+import collectibleRoutes from './routes/collectibles.js'; // Rutas de objetos recolectables
+import skinRoutes from './routes/skins.js'; // Rutas de skins
+import levelRoutes from './routes/levels.js'; // Rutas de niveles
+import musicRoutes from './routes/music.js'; // Rutas de música
 import cors from 'cors';
 
 const app = express();
@@ -32,12 +36,6 @@ app.use(cors({
   credentials: true // Permite el envío de cookies si usas sesiones
 }));
 
-// Usamos las rutas de autenticación
-app.use('/auth', authRoutes);
-
-// Usamos las rutas de monstruos
-app.use('/monsters', monsterRoutes);
-
 // Definimos los modelos con Sequelize
 const User = userModel(sequelize);
 const Monster = monsterModel(sequelize);
@@ -46,25 +44,13 @@ const Skin = skinModel(sequelize);
 const LevelConfig = levelConfigModel(sequelize);
 const MusicSetting = musicSettingModel(sequelize);
 
-// Rutas de modelos (aunque no las uses, estas rutas se refieren a los modelos)
-app.use('/user', (req, res) => {
-  res.json({ message: 'User model is working' });
-});
-app.use('/Monster', (req, res) => {
-  res.json({ message: 'Monster model is working' });
-});
-app.use('/collectible', (req, res) => {
-  res.json({ message: 'Collectible model is working' });
-});
-app.use('/Skin', (req, res) => {
-  res.json({ message: 'Skin model is working' });
-});
-app.use('/level-config', (req, res) => {
-  res.json({ message: 'LevelConfig model is working' });
-});
-app.use('/music-settings', (req, res) => {
-  res.json({ message: 'MusicSetting model is working' });
-});
+// Usamos las rutas
+app.use('/auth', authRoutes);
+app.use('/monsters', monsterRoutes);
+app.use('/collectibles', collectibleRoutes);
+app.use('/skins', skinRoutes);
+app.use('/levels', levelRoutes);
+app.use('/music', musicRoutes);
 
 // Página de bienvenida
 app.get('/', (req, res) => {
@@ -78,14 +64,17 @@ const initializeServer = async () => {
     await sequelize.authenticate();
     console.log('Conexión a la base de datos establecida correctamente.');
 
-    // Forzamos la recreación de todas las tablas
-    await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
-    await sequelize.sync({ force: true });
-    await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
+    // Luego sincronizamos los modelos uno por uno
+    await User.sync();
+    await Monster.sync();
+    await Collectible.sync();
+    await Skin.sync();
+    await LevelConfig.sync();
+    await MusicSetting.sync();
     
-    console.log('Base de datos reinicializada correctamente.');
+    console.log('Modelos sincronizados correctamente.');
 
-    // Iniciamos el servidor
+    // Finalmente, iniciamos el servidor
     app.listen(PORT, () => {
       console.log(`Servidor funcionando en http://localhost:${PORT}`);
     });
