@@ -6,6 +6,7 @@ import CollectiblesView from '../views/CollectiblesView.vue'
 import SkinsView from '../views/SkinsView.vue'
 import LevelsView from '../views/LevelsView.vue'
 import MusicView from '../views/MusicView.vue'
+import FormularioView from '../views/FormularioView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -57,6 +58,12 @@ const router = createRouter({
       name: 'music',
       component: MusicView,
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/config',
+      name: 'config',
+      component: FormularioView,
+      meta: { requiresAuth: true }
     }
   ]
 })
@@ -68,8 +75,9 @@ router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth) && !isAuthenticated) {
     // Si la ruta requiere autenticación y el usuario no está autenticado, redirigir a login
     next('/login')
-  } else if (to.matched.some(record => record.meta.allowIfLoggedIn) && isAuthenticated) {
+  } else if (to.matched.some(record => record.meta.allowIfLoggedIn) && isAuthenticated && to.path !== '/config') {
     // Si la ruta es login/register y el usuario ya está autenticado, redirigir a monsters
+    // Pero no redirigir si se está intentando acceder a /config
     next('/monsters')
   } else {
     next()

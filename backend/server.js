@@ -8,14 +8,19 @@ import collectibleModel from './models/collectible.js'; // Modelo de objetos rec
 import skinModel from './models/Skin.js'; // Modelo de skins
 import levelConfigModel from './models/levelConfig.js'; // Modelo de configuración de niveles
 import musicSettingModel from './models/MusicSetting.js'; // Modelo de configuración de música
+import gameConfigModel from './models/GameConfig.js'; // Modelo de configuración de juego
 import authRoutes from './routes/auth.js'; // Rutas de autenticación
 import monsterRoutes from './routes/monsters.js'; // Rutas de monstruos
 import collectibleRoutes from './routes/collectibles.js'; // Rutas de objetos recolectables
 import skinRoutes from './routes/skins.js'; // Rutas de skins
 import levelRoutes from './routes/levels.js'; // Rutas de niveles
 import musicRoutes from './routes/music.js'; // Rutas de música
+import gameConfigRoutes from './routes/gameConfig.js'; // Rutas de configuración de juego
 import cors from 'cors';
+import session from 'express-session';
+import SequelizeStorePkg from 'connect-session-sequelize';
 
+const SequelizeStore = SequelizeStorePkg(session.Store);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -36,6 +41,21 @@ app.use(cors({
   credentials: true // Permite el envío de cookies si usas sesiones
 }));
 
+// Configuración de sesiones a nivel de aplicación
+const sessionStore = new SequelizeStore({
+  db: sequelize,
+});
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'secreto_seguro',
+  store: sessionStore,
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false }
+}));
+
+sessionStore.sync(); // Sincroniza el almacenamiento de sesiones
+
 // Definimos los modelos con Sequelize
 const User = userModel(sequelize);
 const Monster = monsterModel(sequelize);
@@ -43,6 +63,22 @@ const Collectible = collectibleModel(sequelize);
 const Skin = skinModel(sequelize);
 const LevelConfig = levelConfigModel(sequelize);
 const MusicSetting = musicSettingModel(sequelize);
+const GameConfig = gameConfigModel(sequelize);
+
+// Establecemos las relaciones entre modelos
+GameConfig.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+GameConfig.belongsTo(Skin, { foreignKey: 'skinId', as: 'skin' });
+GameConfig.belongsTo(MusicSetting, { foreignKey: 'musicId', as: 'music' });
+GameConfig.belongsTo(LevelConfig, { foreignKey: 'levelId', as: 'level' });
+
+// Exponemos los modelos globalmente para usar en las rutas
+sequelize.models.user = User;
+sequelize.models.monster = Monster;
+sequelize.models.collectible = Collectible;
+sequelize.models.skin = Skin;
+sequelize.models.levelConfig = LevelConfig;
+sequelize.models.musicSetting = MusicSetting;
+sequelize.models.gameConfig = GameConfig;
 
 // Usamos las rutas
 app.use('/auth', authRoutes);
@@ -51,6 +87,7 @@ app.use('/collectibles', collectibleRoutes);
 app.use('/skins', skinRoutes);
 app.use('/levels', levelRoutes);
 app.use('/music', musicRoutes);
+app.use('/game-config', gameConfigRoutes);
 
 // Página de bienvenida
 app.get('/', (req, res) => {
@@ -71,6 +108,7 @@ const initializeServer = async () => {
     await Skin.sync();
     await LevelConfig.sync();
     await MusicSetting.sync();
+    await GameConfig.sync();
     
     console.log('Modelos sincronizados correctamente.');
 
