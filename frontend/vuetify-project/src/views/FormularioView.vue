@@ -55,17 +55,58 @@
             </v-col>
           </v-row>
 
-          <!-- Selección de Nivel -->
-          <v-card-subtitle class="mt-4 pb-0 pl-0">Selecciona tu Nivel de Inicio</v-card-subtitle>
+          <!-- Selección de Monstruos -->
           <v-row>
-            <v-col cols="12" sm="4" v-for="(level, index) in levels" :key="`level-${index}`">
-              <v-card class="pa-2" :class="{ 'selected-card': selectedLevel === level.id }">
-                <v-radio-group v-model="selectedLevel" :disabled="loading" hide-details>
-                  <v-radio :value="level.id" :label="level.name"></v-radio>
-                </v-radio-group>
-                <div class="text-subtitle-2 mt-2">Dificultad: {{ level.difficulty }}</div>
-                <div class="text-caption mt-1">{{ level.description }}</div>
-              </v-card>
+            <v-col cols="12">
+              <v-card-subtitle class="pb-0 pl-0 text-h6">Selecciona tu Monstruo</v-card-subtitle>
+              <v-row>
+                <v-col cols="12" sm="6" md="4" v-for="monster in monsters" :key="monster.id">
+                  <v-card 
+                    :class="{ 'selected-card': selectedMonster === monster.id }"
+                    class="monster-card"
+                    @click="selectedMonster = monster.id"
+                  >
+                    <v-card-title class="text-center">{{ monster.name }}</v-card-title>
+                    
+                    <v-card-text>
+                      <div class="d-flex justify-center mb-4">
+                        <v-avatar size="120" class="monster-avatar">
+                          <v-img
+                            :src="monster.sprite || 'default-monster.png'"
+                            :alt="monster.name"
+                            cover
+                          ></v-img>
+                        </v-avatar>
+                      </div>
+
+                      <v-list>
+                        <v-list-item>
+                          <v-list-item-title>
+                            <v-icon color="red">mdi-heart</v-icon>
+                            Salud: {{ monster.health }}
+                          </v-list-item-title>
+                        </v-list-item>
+                        
+                        <v-list-item>
+                          <v-list-item-title>
+                            <v-icon color="orange">mdi-sword</v-icon>
+                            Fuerza: {{ monster.strength }}
+                          </v-list-item-title>
+                        </v-list-item>
+                        
+                        <v-list-item>
+                          <v-list-item-title>
+                            <v-icon color="blue">mdi-run-fast</v-icon>
+                            Velocidad: {{ monster.speed }}
+                          </v-list-item-title>
+                        </v-list-item>
+                      </v-list>
+
+                      <p class="text-caption text-center mt-2">{{ monster.description || 'Sin descripción disponible' }}</p>
+                    </v-card-text>
+                  </v-card>
+                </v-col>
+              </v-row>
             </v-col>
           </v-row>
 
@@ -121,11 +162,11 @@
           
           <v-col cols="12" sm="4">
             <v-card class="pa-4">
-              <v-card-title class="text-h6">Nivel</v-card-title>
-              <div class="text-center my-3" v-if="selectedLevelObj">
-                <v-icon size="large" color="primary">mdi-map</v-icon>
+              <v-card-title class="text-h6">Monstruo</v-card-title>
+              <div class="text-center my-3" v-if="selectedMonsterObj">
+                <v-icon size="large" color="primary">mdi-monster</v-icon>
               </div>
-              <v-card-subtitle class="text-center">{{ selectedLevelObj ? selectedLevelObj.name : 'No seleccionado' }}</v-card-subtitle>
+              <v-card-subtitle class="text-center">{{ selectedMonsterObj ? selectedMonsterObj.name : 'No seleccionado' }}</v-card-subtitle>
             </v-card>
           </v-col>
         </v-row>
@@ -140,25 +181,21 @@ import axios from 'axios';
 export default {
   name: 'FormularioView',
 
-  data: () => ({
-    // Estado de carga y guardado
-    loading: false,
-    saving: false,
-    configurationSaved: false,
-    
-    // Datos del usuario
-    userId: null,
-    
-    // Datos de selección
-    selectedSkin: null,
-    selectedMusic: null,
-    selectedLevel: null,
-    
-    // Datos disponibles
-    skins: [],
-    musicTracks: [],
-    levels: []
-  }),
+  data() {
+    return {
+      loading: true,
+      saving: false,
+      configurationSaved: false,
+      userId: null,
+      skins: [],
+      musicTracks: [],
+      monsters: [],
+      selectedSkin: null,
+      selectedMusic: null,
+      selectedMonster: null,
+      error: null
+    };
+  },
 
   computed: {
     selectedSkinObj() {
@@ -167,8 +204,8 @@ export default {
     selectedMusicObj() {
       return this.musicTracks.find(music => music.id === this.selectedMusic) || null;
     },
-    selectedLevelObj() {
-      return this.levels.find(level => level.id === this.selectedLevel) || null;
+    selectedMonsterObj() {
+      return this.monsters.find(monster => monster.id === this.selectedMonster) || null;
     }
   },
 
@@ -180,7 +217,6 @@ export default {
     async initialize() {
       this.loading = true;
       try {
-        // Obtener el ID del usuario del localStorage
         const userString = localStorage.getItem('user');
         if (userString) {
           const user = JSON.parse(userString);
@@ -190,11 +226,10 @@ export default {
           console.error('No hay usuario en localStorage');
         }
 
-        // Cargar datos paralelos
         await Promise.all([
           this.loadSkins(),
           this.loadMusic(),
-          this.loadLevels(),
+          this.loadMonsters(),
           this.loadUserConfiguration()
         ]);
       } catch (error) {
@@ -222,12 +257,17 @@ export default {
       }
     },
 
-    async loadLevels() {
+    async loadMonsters() {
       try {
-        const response = await axios.get('http://localhost:3000/levels');
-        this.levels = response.data;
+        const response = await axios.get('http://localhost:3000/monsters');
+        console.log('Monstruos cargados:', response.data);
+        this.monsters = response.data.map(monster => ({
+          ...monster,
+          sprite: monster.sprite || '/default-monster.png' // Asegura que siempre haya una imagen
+        }));
       } catch (error) {
-        console.error('Error loading levels:', error);
+        console.error('Error loading monsters:', error);
+        this.monsters = []; // Inicializa como array vacío en caso de error
       }
     },
 
@@ -235,19 +275,16 @@ export default {
       if (!this.userId) return;
       
       try {
-        // Usar credentials: 'include' para enviar cookies
         const response = await axios.get('http://localhost:3000/game-config', {
           withCredentials: true
         });
         
-        // Si el usuario ya tiene una configuración, cargarla
         if (response.data) {
           this.selectedSkin = response.data.skinId;
           this.selectedMusic = response.data.musicId;
-          this.selectedLevel = response.data.levelId;
+          this.selectedMonster = response.data.monsterId;
           
-          // Si el usuario ya tenía una configuración guardada, mostrar la previsualización
-          if (this.selectedSkin || this.selectedMusic || this.selectedLevel) {
+          if (this.selectedSkin || this.selectedMusic || this.selectedMonster) {
             this.configurationSaved = true;
           }
         }
@@ -260,7 +297,6 @@ export default {
       if (!this.userId) {
         console.error('Usuario no autenticado');
         
-        // Intentar obtener el ID del usuario de localStorage
         const userString = localStorage.getItem('user');
         if (userString) {
           try {
@@ -286,7 +322,7 @@ export default {
       console.log('Datos a enviar:', {
         skinId: this.selectedSkin,
         musicId: this.selectedMusic,
-        levelId: this.selectedLevel
+        monsterId: this.selectedMonster
       });
       
       this.saving = true;
@@ -294,10 +330,9 @@ export default {
         const config = {
           skinId: this.selectedSkin,
           musicId: this.selectedMusic,
-          levelId: this.selectedLevel
+          monsterId: this.selectedMonster
         };
         
-        // Usar credentials: 'include' para enviar cookies
         const response = await axios.post('http://localhost:3000/game-config', config, {
           withCredentials: true
         });
@@ -306,7 +341,6 @@ export default {
         this.configurationSaved = true;
       } catch (error) {
         console.error('Error saving configuration:', error);
-        // Mostrar más detalles del error si están disponibles
         if (error.response) {
           console.error('Error response:', error.response.data);
         }
@@ -410,5 +444,13 @@ audio {
 .peach-header {
   background-color: #FCD0B4;
   color: #333333;
+}
+
+.monster-card {
+  cursor: pointer;
+}
+
+.monster-avatar {
+  border-radius: 50%;
 }
 </style>

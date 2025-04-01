@@ -11,9 +11,9 @@ const getModels = async () => {
     const User = sequelize.models.user;
     const Skin = sequelize.models.skin;
     const MusicSetting = sequelize.models.musicSetting;
-    const LevelConfig = sequelize.models.levelConfig;
+    const Monster = sequelize.models.monster;
     
-    return { GameConfig, User, Skin, MusicSetting, LevelConfig };
+    return { GameConfig, User, Skin, MusicSetting, Monster };
   } catch (error) {
     console.error('Error cargando modelos:', error);
     throw error;
@@ -35,7 +35,7 @@ const authenticateSession = async (req, res, next) => {
 // Obtener configuración del juego para un usuario
 router.get('/', authenticateSession, async (req, res) => {
   try {
-    const { GameConfig, Skin, MusicSetting, LevelConfig } = await getModels();
+    const { GameConfig, Skin, MusicSetting, Monster } = await getModels();
     const userId = req.user.userId;
     
     // Buscar la configuración existente del usuario
@@ -44,7 +44,7 @@ router.get('/', authenticateSession, async (req, res) => {
       include: [
         { model: Skin, as: 'skin' },
         { model: MusicSetting, as: 'music' },
-        { model: LevelConfig, as: 'level' }
+        { model: Monster, as: 'monster' }
       ]
     });
 
@@ -54,10 +54,10 @@ router.get('/', authenticateSession, async (req, res) => {
         userId,
         skinId: null,
         musicId: null,
-        levelId: null,
+        monsterId: null,
         skin: null,
         music: null,
-        level: null
+        monster: null
       });
     }
 
@@ -71,9 +71,9 @@ router.get('/', authenticateSession, async (req, res) => {
 // Crear o actualizar configuración del juego
 router.post('/', authenticateSession, async (req, res) => {
   try {
-    const { GameConfig, Skin, MusicSetting, LevelConfig } = await getModels();
+    const { GameConfig, Skin, MusicSetting, Monster } = await getModels();
     const userId = req.user.userId;
-    const { skinId, musicId, levelId } = req.body;
+    const { skinId, musicId, monsterId } = req.body;
 
     // Verificar si ya existe una configuración para este usuario
     let config = await GameConfig.findOne({ where: { userId } });
@@ -83,7 +83,7 @@ router.post('/', authenticateSession, async (req, res) => {
       await config.update({
         skinId,
         musicId,
-        levelId,
+        monsterId,
         updated_at: new Date()
       });
     } else {
@@ -92,7 +92,7 @@ router.post('/', authenticateSession, async (req, res) => {
         userId,
         skinId,
         musicId,
-        levelId
+        monsterId
       });
     }
 
@@ -102,102 +102,42 @@ router.post('/', authenticateSession, async (req, res) => {
       include: [
         { model: Skin, as: 'skin' },
         { model: MusicSetting, as: 'music' },
-        { model: LevelConfig, as: 'level' }
+        { model: Monster, as: 'monster' }
       ]
     });
 
-    res.status(201).json(updatedConfig);
+    res.json(updatedConfig);
   } catch (error) {
     console.error('Error al guardar configuración:', error);
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 });
 
-// Endpoint para Unity (sin autenticación, con userId en la ruta)
+// Ruta para Unity - obtener configuración por userId
 router.get('/unity/:userId', async (req, res) => {
   try {
-    const { GameConfig, Skin, MusicSetting, LevelConfig } = await getModels();
+    const { GameConfig, Skin, MusicSetting, Monster } = await getModels();
     const { userId } = req.params;
     
-    // Buscar la configuración existente del usuario
-    let config = await GameConfig.findOne({
+    const config = await GameConfig.findOne({
       where: { userId },
       include: [
         { model: Skin, as: 'skin' },
         { model: MusicSetting, as: 'music' },
-        { model: LevelConfig, as: 'level' }
+        { model: Monster, as: 'monster' }
       ]
     });
-
-    // Si no existe configuración, intentamos crear una predeterminada
-    if (!config) {
-      try {
-        // Verificar si el usuario existe
-        const User = sequelize.models.user;
-        const userExists = await User.findByPk(userId);
-        
-        if (!userExists) {
-          return res.status(404).json({ message: 'Usuario no encontrado' });
-        }
-        
-        // Obtener valores predeterminados para crear una configuración básica
-        const defaultSkin = await Skin.findOne();
-        const defaultMusic = await MusicSetting.findOne();
-        const defaultLevel = await LevelConfig.findOne();
-        
-        // Crear una configuración predeterminada
-        if (defaultSkin || defaultMusic || defaultLevel) {
-          config = await GameConfig.create({
-            userId,
-            skinId: defaultSkin ? defaultSkin.id : null,
-            musicId: defaultMusic ? defaultMusic.id : null,
-            levelId: defaultLevel ? defaultLevel.id : null
-          });
-          
-          // Recargar la configuración con las relaciones
-          config = await GameConfig.findOne({
-            where: { userId },
-            include: [
-              { model: Skin, as: 'skin' },
-              { model: MusicSetting, as: 'music' },
-              { model: LevelConfig, as: 'level' }
-            ]
-          });
-        } else {
-          return res.status(404).json({ message: 'No hay opciones predeterminadas disponibles' });
-        }
-      } catch (createError) {
-        console.error('Error al crear configuración predeterminada:', createError);
-        return res.status(404).json({ message: 'Configuración no encontrada y no se pudo crear una predeterminada' });
-      }
-    }
     
-    // Si aún no hay configuración, enviar el error 404
     if (!config) {
       return res.status(404).json({ message: 'Configuración no encontrada' });
     }
-
-    // Formatear la respuesta para Unity
-    const unityResponse = {
-      userId: parseInt(userId),
-      skin: config.skin ? {
-        id: config.skin.id,
-        name: config.skin.name,
-        sprite: config.skin.sprite
-      } : null,
-      music: config.music ? {
-        id: config.music.id,
-        scene: config.music.scene,
-        track_path: config.music.track_path
-      } : null,
-      level: config.level ? {
-        id: config.level.id,
-        name: config.level.name,
-        difficulty: config.level.difficulty
-      } : null
-    };
-
-    res.json(unityResponse);
+    
+    res.json({
+      userId: config.userId,
+      skin: config.skin,
+      music: config.music,
+      monster: config.monster
+    });
   } catch (error) {
     console.error('Error al obtener configuración para Unity:', error);
     res.status(500).json({ message: 'Error interno del servidor' });

@@ -4,11 +4,14 @@ FROM node:18-alpine
 # Establecemos el directorio de trabajo dentro del contenedor
 WORKDIR /app/back
 
+# Instalamos nodemon globalmente
+RUN npm install -g nodemon
+
 # Copiamos los archivos de dependencias
 COPY package*.json ./
 
 # Instalamos las dependencias del proyecto
-RUN npm install 
+RUN npm install
 
 # Copiamos el resto del código
 COPY . .

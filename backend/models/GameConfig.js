@@ -32,11 +32,11 @@ export default (sequelize) => {
         key: 'id'
       }
     },
-    levelId: {
+    monsterId: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: 'level_config', 
+        model: 'monsters',
         key: 'id'
       }
     },
