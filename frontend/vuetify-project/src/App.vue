@@ -63,7 +63,7 @@ export default {
   methods: {
     async logout() {
       try {
-        await fetch('http://localhost:3000/auth/logout', {
+        await fetch('http://gatovsdino.dam.inspedralbes.cat:3000/auth/logout', {
           method: 'POST',
           credentials: 'include'
         });

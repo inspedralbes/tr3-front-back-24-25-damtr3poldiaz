@@ -1,20 +1,11 @@
 import { Sequelize } from 'sequelize';
 
-// Crea una nueva instancia de Sequelize para conectar con la base de datos
-export const sequelize = new Sequelize('my_database', 'user', 'password', {
-    host: '192.168.17.20',
-    dialect: 'mysql',
-    logging: false,
-    pool: {
-        max: 5,
-        min: 0,
-        acquire: 30000,
-        idle: 10000
-    },
-    define: {
-        charset: 'utf8mb4',
-        collate: 'utf8mb4_unicode_ci'
-    }
+// Configuración de Sequelize para conectarse a MySQL en hestia
+export const sequelize = new Sequelize('a23poldiabel_GatoVSDino', 'a23poldiabel_GatoVSDino', 'GatoVSDino1', {
+    host: 'dam.inspedralbes.cat', // URL del servidor MySQL
+    port: 3306, // Puerto de MySQL
+    dialect: 'mysql', // Usamos MySQL
+    logging: false, // Desactiva los logs de SQL en la consola
 });
 
 // Importar modelos

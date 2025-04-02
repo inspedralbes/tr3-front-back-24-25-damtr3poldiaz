@@ -167,7 +167,7 @@ export default {
     async initialize() {
       this.loading = true;
       try {
-        const response = await axios.get('http://localhost:3000/skins');
+        const response = await axios.get('http://gatovsdino.dam.inspedralbes.cat:3000/skins');
         this.skins = response.data;
       } catch (error) {
         console.error('Error loading skins:', error);
@@ -191,10 +191,10 @@ export default {
       try {
         if (this.editedIndex > -1) {
           // Actualizar
-          await axios.put(`http://localhost:3000/skins/${this.editedItem.id}`, this.editedItem);
+          await axios.put(`http://gatovsdino.dam.inspedralbes.cat:3000/skins/${this.editedItem.id}`, this.editedItem);
         } else {
           // Crear nuevo
-          await axios.post('http://localhost:3000/skins', this.editedItem);
+          await axios.post('http://gatovsdino.dam.inspedralbes.cat:3000/skins', this.editedItem);
         }
         this.initialize();
         this.closeDialog();
@@ -213,7 +213,7 @@ export default {
     async deleteItemConfirm() {
       this.deleting = true;
       try {
-        await axios.delete(`http://localhost:3000/skins/${this.editedItem.id}`);
+        await axios.delete(`http://gatovsdino.dam.inspedralbes.cat:3000/skins/${this.editedItem.id}`);
         this.initialize();
         this.dialogDelete = false;
       } catch (error) {

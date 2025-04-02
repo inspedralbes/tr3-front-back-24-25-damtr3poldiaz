@@ -18,9 +18,10 @@ import cors from 'cors';
 import session from 'express-session';
 import SequelizeStorePkg from 'connect-session-sequelize';
 
+
 const SequelizeStore = SequelizeStorePkg(session.Store);
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,7 +33,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(cors({
-  origin: 'http://localhost:5000',
+  origin: 'http://gatovsdino.dam.inspedralbes.cat:5000',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -98,7 +99,7 @@ const initializeServer = async () => {
     await GameConfig.sync();
 
     app.listen(PORT, () => {
-      console.log(`Servidor corriendo en http://localhost:${PORT}`);
+      console.log(`Servidor corriendo en http://161.22.46.133:${PORT}`);
     });
   } catch (error) {
     console.error('Error al inicializar el servidor:', error);
