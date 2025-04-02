@@ -1,0 +1,12 @@
+{
+  "monster": {
+    "id": 2,
+    "name": "normal",
+    "strength": 10,
+    "speed": 1,
+    "health": 5,
+    "sprite": "normal"
+  },
+  "skin": "test",
+  "timestamp": "2025-04-02T20:32:56.414Z"
+}
