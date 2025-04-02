@@ -183,7 +183,7 @@ export default {
     async initialize() {
       this.loading = true;
       try {
-        const response = await axios.get('http://gatovsdino.dam.inspedralbes.cat:3000/levels');
+        const response = await axios.get('http://localhost:3000/levels');
         this.levels = response.data;
       } catch (error) {
         console.error('Error loading levels:', error);
@@ -194,7 +194,7 @@ export default {
 
     async loadMonsters() {
       try {
-        const response = await axios.get('http://gatovsdino.dam.inspedralbes.cat:3000/monsters');
+        const response = await axios.get('http://localhost:3000/monsters');
         this.monsters = response.data;
       } catch (error) {
         console.error('Error loading monsters:', error);
@@ -216,10 +216,10 @@ export default {
       try {
         if (this.editedIndex > -1) {
           // Actualizar
-          await axios.put(`http://gatovsdino.dam.inspedralbes.cat:3000/levels/${this.editedItem.id}`, this.editedItem);
+          await axios.put(`http://localhost:3000/levels/${this.editedItem.id}`, this.editedItem);
         } else {
           // Crear nuevo
-          await axios.post('http://gatovsdino.dam.inspedralbes.cat:3000/levels', this.editedItem);
+          await axios.post('http://localhost:3000/levels', this.editedItem);
         }
         this.initialize();
         this.closeDialog();
@@ -238,7 +238,7 @@ export default {
     async deleteItemConfirm() {
       this.deleting = true;
       try {
-        await axios.delete(`http://gatovsdino.dam.inspedralbes.cat:3000/levels/${this.editedItem.id}`);
+        await axios.delete(`http://localhost:3000/levels/${this.editedItem.id}`);
         this.initialize();
         this.dialogDelete = false;
       } catch (error) {

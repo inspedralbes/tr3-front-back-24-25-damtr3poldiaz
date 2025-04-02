@@ -92,7 +92,7 @@ export default {
       this.loading = true;
       this.error = '';
       try {
-        await axios.post('http://gatovsdino.dam.inspedralbes.cat:3000/auth/register', {
+        await axios.post('http://localhost:3000/auth/register', {
           username: this.username,
           email: this.email,
           password: this.password
