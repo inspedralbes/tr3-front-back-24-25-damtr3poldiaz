@@ -129,16 +129,19 @@ export default {
     async loadGameAssets() {
       this.loading = true;
       try {
-        // Get data from individual endpoints
         const [monstersRes, skinsRes, musicRes] = await Promise.all([
           api.get('/monsters'),
           api.get('/skins'),
           api.get('/music')
         ]);
 
-        this.monsters = monstersRes.data;
-        this.skins = skinsRes.data;
-        this.music = musicRes.data;
+        this.monsters = monstersRes.data.map(m => ({ id: m.id, name: m.name }));
+        this.skins = skinsRes.data.map(s => ({ id: s.id, name: s.name }));
+        this.music = musicRes.data.map(m => ({ id: m.id, name: m.name }));
+
+        console.log("Monsters:", this.monsters);
+        console.log("Skins:", this.skins);
+        console.log("Music:", this.music);
 
         if (this.monsters.length === 0 || this.skins.length === 0 || this.music.length === 0) {
           this.showAlert('warning', 'Some game assets are not available');
@@ -167,33 +170,32 @@ export default {
     },
     async saveConfiguration() {
       if (!this.isFormValid) {
-          this.showAlert('error', 'Please select all options');
-          return;
+        this.showAlert('error', 'Please select all options');
+        return;
       }
 
       this.saving = true;
       try {
-          const response = await api.post('/game-config/config', {
-              userId: 1, 
-              monsterId: this.selectedMonster,
-              skinId: this.selectedSkin,
-              musicId: this.selectedMusic
-          });
+        const response = await api.post('/game-config/config', {
+          userId: 1,
+          monsterId: this.selectedMonster,
+          skinId: this.selectedSkin,
+          musicId: this.selectedMusic
+        });
 
-          if (response.data.success) {
-              this.showAlert('success', 'Configuration saved successfully!');
-              await this.loadDebugInfo();  // 🔥 Volver a cargar el Debug Info
-          } else {
-              this.showAlert('error', 'Failed to save configuration');
-          }
+        if (response.data.success) {
+          this.showAlert('success', 'Configuration saved successfully!');
+          await this.loadDebugInfo();
+        } else {
+          this.showAlert('error', 'Failed to save configuration');
+        }
       } catch (error) {
-          this.showAlert('error', 'Error saving configuration');
-          console.error('Error saving configuration:', error);
+        this.showAlert('error', 'Error saving configuration');
+        console.error('Error saving configuration:', error);
       } finally {
-          this.saving = false;
+        this.saving = false;
       }
-  },
-
+    },
     showAlert(type, message) {
       this.alert = {
         show: true,

@@ -20,7 +20,6 @@ const MusicSetting = musicSettingModel(sequelize);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const DEBUG_FILE_PATH = path.join(__dirname, '../debug.json');
-
 router.post('/config', async (req, res) => {
     try {
         const { monsterId, skinId, musicId } = req.body;
@@ -29,9 +28,12 @@ router.post('/config', async (req, res) => {
             return res.status(400).json({ success: false, error: 'Missing parameters' });
         }
 
-        const [monster, skin, music] = await Promise.all([ 
-            Monster.findByPk(monsterId), 
-            Skin.findByPk(skinId), 
+        // Recuperar los detalles del monstruo con todos los atributos necesarios
+        const [monster, skin, music] = await Promise.all([
+            Monster.findByPk(monsterId, {  
+                attributes: ['id', 'name', 'strength', 'speed', 'health', 'sprite'] // Incluimos todos los atributos necesarios
+            }),
+            Skin.findByPk(skinId),
             MusicSetting.findByPk(musicId)
         ]);
 
@@ -45,22 +47,32 @@ router.post('/config', async (req, res) => {
             musicId
         }, { returning: true });
 
-        // ✅ Guardar la configuración en un archivo JSON
+        // Guardar la configuración en un archivo JSON con los detalles completos del monstruo
         const debugData = {
-            monster: monster.name,
+            monster: {
+                id: monster.id,
+                name: monster.name,
+                strength: monster.strength,
+                speed: monster.speed,
+                health: monster.health,
+                sprite: monster.sprite || 'No sprite available'  // Si no hay sprite, mostramos un mensaje por defecto
+            },
             skin: skin.name,
             music: music.name,
             timestamp: new Date().toISOString()
         };
+
+        console.log('Configuración guardada, guardando en archivo debug...');
         fs.writeFileSync(DEBUG_FILE_PATH, JSON.stringify(debugData, null, 2), 'utf-8');
+        console.log('Archivo debug guardado correctamente.');
 
-
-        return res.json({ success: true, config: debugData, created });
+        return res.json({ success: true, config: debugData, created });x    
     } catch (error) {
         console.error('Error saving game config:', error);
         return res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });
+
 
 router.get('/debug', async (req, res) => {
     try {
@@ -70,7 +82,7 @@ router.get('/debug', async (req, res) => {
 
         const fileContent = fs.readFileSync(DEBUG_FILE_PATH, 'utf-8');
 
-        if (!fileContent.trim()) {  // ⬅️ Verifica si el archivo está vacío
+        if (!fileContent.trim()) {  
             return res.status(500).json({ success: false, error: 'Debug file is empty' });
         }
 
@@ -81,6 +93,7 @@ router.get('/debug', async (req, res) => {
         return res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });
+
 
 
 export default router;
