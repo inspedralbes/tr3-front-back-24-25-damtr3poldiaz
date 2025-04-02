@@ -166,33 +166,33 @@ export default {
       }
     },
     async saveConfiguration() {
-    if (!this.isFormValid) {
-        this.showAlert('error', 'Please select all options');
-        return;
-    }
+      if (!this.isFormValid) {
+          this.showAlert('error', 'Please select all options');
+          return;
+      }
 
-    this.saving = true;
-    try {
-        const response = await api.post('/game-config/config', {
-        userId: 1,  // ⚠️ REEMPLAZA ESTO POR EL USER ID CORRECTO
-        monsterId: this.selectedMonster,
-        skinId: this.selectedSkin,
-        musicId: this.selectedMusic
-        });
+      this.saving = true;
+      try {
+          const response = await api.post('/game-config/config', {
+              userId: 1, 
+              monsterId: this.selectedMonster,
+              skinId: this.selectedSkin,
+              musicId: this.selectedMusic
+          });
 
-        if (response.data.success) {
-        this.showAlert('success', 'Configuration saved successfully!');
-        this.debugInfo = response.data.config;  // Mostramos la nueva config guardada
-        } else {
-        this.showAlert('error', 'Failed to save configuration');
-        }
-    } catch (error) {
-        this.showAlert('error', 'Error saving configuration');
-        console.error('Error saving configuration:', error);
-    } finally {
-        this.saving = false;
-    }
-    },
+          if (response.data.success) {
+              this.showAlert('success', 'Configuration saved successfully!');
+              await this.loadDebugInfo();  // 🔥 Volver a cargar el Debug Info
+          } else {
+              this.showAlert('error', 'Failed to save configuration');
+          }
+      } catch (error) {
+          this.showAlert('error', 'Error saving configuration');
+          console.error('Error saving configuration:', error);
+      } finally {
+          this.saving = false;
+      }
+  },
 
     showAlert(type, message) {
       this.alert = {

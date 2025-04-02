@@ -2,7 +2,7 @@ import { Sequelize } from 'sequelize';
 
 // Crea una nueva instancia de Sequelize para conectar con la base de datos
 export const sequelize = new Sequelize('my_database', 'user', 'password', {
-    host: '192.168.1.238',
+    host: '192.168.17.20',
     dialect: 'mysql',
     logging: false,
     pool: {
